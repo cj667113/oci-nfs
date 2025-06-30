@@ -33,11 +33,11 @@ resource "oci_core_instance" "monitoring_server" {
         tls_private_key.ssh.public_key_openssh
       ]
     )
-    user_data = base64encode(join("\n", list(
-        "#!/usr/bin/env bash",
-        "set -x",
-      )))
-    }
+    user_data = base64encode(join("\n", [
+      "#!/usr/bin/env bash",
+      "set -x"
+    ]))
+  }
 
   dynamic "shape_config" {
     for_each = local.is_monitoring_server_flex_shape

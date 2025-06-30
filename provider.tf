@@ -10,13 +10,21 @@ provider "oci" {
 
 # Variables required by the OCI Provider only when running Terraform CLI with standard user based Authentication
 variable "user_ocid" {
+  type        = string
+  default     = ""
 }
 
 variable "fingerprint" {
+  type        = string
+  default     = ""
 }
 
 variable "private_key_path" {
+  type        = string
+  default     = ""
 }
 
 variable "ssh_private_key" {
+  type        = string
+  default     = ""
 }

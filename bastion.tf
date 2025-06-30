@@ -203,10 +203,10 @@ resource "oci_core_instance" "storage_server" {
         tls_private_key.ssh.public_key_openssh
       ]
     )
-    user_data = base64encode(join("\n", list(
+    user_data = base64encode(join("\n", [
       "#!/usr/bin/env bash",
-      "set -x",
-    )))
+      "set -x"
+    ]))
   }
 
   dynamic "shape_config" {
@@ -273,11 +273,11 @@ resource "oci_core_instance" "client_node" {
         tls_private_key.ssh.public_key_openssh
       ]
     )
-    user_data = base64encode(join("\n", list(
-        "#!/usr/bin/env bash",
-        "set -x",
-      )))
-    }
+    user_data = base64encode(join("\n", [
+      "#!/usr/bin/env bash",
+      "set -x"
+    ]))
+  }
 
   dynamic "shape_config" {
     for_each = local.is_client_node_flex_shape
@@ -331,11 +331,11 @@ resource "oci_core_instance" "quorum_server" {
         tls_private_key.ssh.public_key_openssh
       ]
     )
-    user_data = base64encode(join("\n", list(
-        "#!/usr/bin/env bash",
-        "set -x",
-      )))
-    }
+    user_data = base64encode(join("\n", [
+      "#!/usr/bin/env bash",
+      "set -x"
+    ]))
+  }
 
   dynamic "shape_config" {
     for_each = local.is_quorum_server_flex_shape
@@ -352,5 +352,3 @@ resource "oci_core_instance" "quorum_server" {
   }
 
 }
-
-
