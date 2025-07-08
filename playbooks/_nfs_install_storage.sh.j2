@@ -1,8 +1,6 @@
-
-
 make_filesystem()
 {
-    lvcreate -l 100%VG --stripes $lvm_stripes_cnt --stripesize "{{ block_size }}K" -n $disk_name $vg_nfs_name
+    lvcreate -l 100%VG -i $lvm_stripes_cnt -I ${lvm_stripe_size}K -n $disk_name $vg_nfs_name    
     lvdisplay
 
     # Create XFS filesystem with Inodes set at 512 and Directory block size at 8192
@@ -10,7 +8,8 @@ make_filesystem()
     # lvm_stripe_size is assumed to be in KB, hence multiply by 1024 to convert to bytes.
     # su must be a multiple of the sector size (4096)
     # sw must be equal to # of disk within RAID or LVM.
-    su=$(({{ block_size }}*1024)) ;  echo $su
+
+    su=$((lvm_stripe_size*1024)) ; echo $su
     sw=$((lvm_stripes_cnt)) ; echo $sw
     mkfs.xfs -f -i size=512 -n size=8192 -d su=${su},sw=${sw} /dev/${vg_nfs_name}/${disk_name}
     ###mount_point="/mnt/nfsshare"
@@ -19,7 +18,8 @@ make_filesystem()
     mount -t xfs -o noatime,inode64,uquota,prjquota /dev/${vg_nfs_name}/${disk_name} ${mount_point}
     df -h
     mkdir -p ${mount_point}/exports
-    if [ "{{ fs_ha }}" = "true" ]; then
+
+    if [ "$fs_ha" = "true" ]; then
       # unmount it, since we want PCS to manage it.
       umount ${mount_point}
     else
@@ -191,8 +191,6 @@ configure_disks()
         process_disks "$blk_lst" "disk3"
     fi
 
- 
-
     ##find_block_volumes
     # call function
     ##process_disks "$blk_lst"
@@ -202,20 +200,22 @@ configure_disks()
     # nvme_lst will be full path, eg  /dev/nvme0n1 ,etc
     nvme_lst=$(ls /dev/* | grep nvme | grep n1 | sort)
     nvme_cnt=$(ls /dev/* | grep nvme | grep n1 | wc -l)
+    mount_point="/mnt/${fs_name}"
 
     if [ $nvme_cnt -gt 0 ]; then
-      # call function
-      process_disks "$nvme_lst"
+      # call function with explicit disk name to avoid lvcreate bug
+      process_disks "$nvme_lst" "disk"
     else
     
     ## TODO - update to support multiple xfs for single node.
       find_block_volumes
-      # call function
-      process_disks "$blk_lst"
+      # call function with explicit disk name to avoid lvcreate bug
+      process_disks "$blk_lst" "disk"
     fi
 
   fi
 }
+
 
 
 
@@ -230,6 +230,9 @@ use_uhp={{ use_uhp }}
 use_non_uhp_fs1={{ use_non_uhp_fs1 }}
 use_non_uhp_fs2={{ use_non_uhp_fs2 }}
 use_non_uhp_fs3={{ use_non_uhp_fs3 }}
+
+# Added in for singlenode
+fs_name='nfsshare'
 
 # fs0 reserverd for uhp
 fs0_name={{ fs0_name }}
