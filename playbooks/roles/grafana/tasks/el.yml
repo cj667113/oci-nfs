@@ -12,10 +12,10 @@
     sslverify: 1
     sslcacert: /etc/pki/tls/certs/ca-bundle.crt
 
-- name: Install Grafana 8.2.1 on OL7
+- name: Install Grafana 12.1.0-1 on OL7
   become: true
   yum:
-    name: grafana-8.2.1-1
+    name: grafana-12.1.0-1
     state: present
     enablerepo: grafana
 
